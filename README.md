@@ -46,48 +46,45 @@ El metodo en la clase __main__ quedaria tal que así :
 
 La clase CountThread quedaria tal que asi : 
 
+
 ```{java}
 
-	public class CountThread extends Thread {
-		
-		private int A;
-		private int B;
-		
-		public CountThread(int  A , int B){
-			this.A= A;
-			this.B= B;  
-		}
+package edu.eci.arsw.threads;
 
-		@Override
-		public void run(){ 
-			for (int i=A + 1 ;i < B;i++){
-				System.out.println("Hilo en ejecución :"+ getName() +" numero "+ i);
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException ex) {
-					ex.printStackTrace();
-				}
-			}
-
-		}
+public class CountThread extends Thread{
+    
+    private int A;
+    private int B;
+    
+    public CountThread(int A ,int B){
+        this.A = A;
+        this.B = B;
+    }
+    
+    @Override
+    public void run(){
+        for (int i=A;i<=B;i++){
+            System.out.println("Thread No. "+ getName() + " i=" + i);
+        }
+   
+    }
 
 ```
 
 
-	3. Ejecute y revise la salida por pantalla. 
+3. Ejecute y revise la salida por pantalla. 
 
 
 Al ejecutar la clase principal utilizando respectivamente el metodo 'start()' y la siguiente seria la salida (para mayor entendimiento en la clase CountThread en el metodo 'run()'hacemos que nos indique el nombre del hilo el cual esta realizando la tarea ): 
 
-![](img/Ejecucion_start().png)
+![Metodo start](img/CountThreads_start().mp4)
 
-	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
 Al cambiar el método 'start()' por el método 'run()', lo que hacemos es ejecutar el método de la clase como un método normal. Este se ejecuta en el mismo hilo, por lo cual no permite la realización de tareas en paralelo. En cambio, al llamar el método 'start()', se crea un nuevo hilo que justo luego invoca el método 'run()' de manera interna, permitiendo que el programa se ejecute de forma concurrente.
 
 
 Ejecucion con el metodo 'run()':
-
 
 
 ```{java}
@@ -105,7 +102,7 @@ Ejecucion con el metodo 'run()':
 
 Salida:
 
-![](img/Ejecucion_run().png)
+![Metodo run](img/CountThreads_run().mp4)
 
 
 **Parte II - Ejercicio Black List Search**
@@ -132,30 +129,179 @@ Al programa de prueba provisto (Main), le toma sólo algunos segundos análizar 
 
 Éste, como cualquier método de búsqueda, puede verse como un problema [vergonzosamente paralelo](https://en.wikipedia.org/wiki/Embarrassingly_parallel), ya que no existen dependencias entre una partición del problema y otra.
 
-Para 'refactorizar' este código, y hacer que explote la capacidad multi-núcleo de la CPU del equipo, realice lo siguiente:
+Para que este código pueda hacer que explote la capacidad multi-núcleo de la CPU del equipo, realicé lo siguiente:
 
-1. Cree una clase de tipo Thread que represente el ciclo de vida de un hilo que haga la búsqueda de un segmento del conjunto de servidores disponibles. Agregue a dicha clase un método que permita 'preguntarle' a las instancias del mismo (los hilos) cuantas ocurrencias de servidores maliciosos ha encontrado o encontró.
+1. Cree una clase de tipo Thread que represente el ciclo de vida de un hilo que haga la búsqueda de un segmento del conjunto de servidores disponibles y agregamos a dicha clase un método que permite 'preguntarle' a las instancias del mismo (los hilos) cuantas ocurrencias de servidores maliciosos ha encontrado o encontró.
 
-2. Agregue al método 'checkHost' un parámetro entero N, correspondiente al número de hilos entre los que se va a realizar la búsqueda (recuerde tener en cuenta si N es par o impar!). Modifique el código de este método para que divida el espacio de búsqueda entre las N partes indicadas, y paralelice la búsqueda a través de N hilos. Haga que dicha función espere hasta que los N hilos terminen de resolver su respectivo sub-problema, agregue las ocurrencias encontradas por cada hilo a la lista que retorna el método, y entonces calcule (sumando el total de ocurrencuas encontradas por cada hilo) si el número de ocurrencias es mayor o igual a _BLACK_LIST_ALARM_COUNT_. Si se da este caso, al final se DEBE reportar el host como confiable o no confiable, y mostrar el listado con los números de las listas negras respectivas. Para lograr este comportamiento de 'espera' revise el método [join](https://docs.oracle.com/javase/tutorial/essential/concurrency/join.html) del API de concurrencia de Java. Tenga también en cuenta:
+```{java}
+	public class SearchBlackListThread extends Thread {
 
-	* Dentro del método checkHost Se debe mantener el LOG que informa, antes de retornar el resultado, el número de listas negras revisadas VS. el número de listas negras total (línea 60). Se debe garantizar que dicha información sea verídica bajo el nuevo esquema de procesamiento en paralelo planteado.
+    private int start;
+    private int end;
+    private String ip;
+    private List<Integer> results;
 
-	* Se sabe que el HOST 202.24.34.55 está reportado en listas negras de una forma más dispersa, y que el host 212.24.24.55 NO está en ninguna lista negra.
+    public SearchBlackListThread(int start, int end,String ip,List<Integer> results) {
+        this.start = start;
+        this.end = end;
+        this.ip = ip;
+        this.results = results;
+    }
+
+    @Override
+    public void run() {
+        HostBlacklistsDataSourceFacade skds =HostBlacklistsDataSourceFacade.getInstance();
+        for (int i = start; i < end; i++) {
+            if (skds.isInBlackListServer(i, ip)) {
+                results.add(i); 
+            }
+        }
+    }
+}
+```
+1. Agregamos al método 'checkHost' un parámetro entero N, correspondiente al número de hilos entre los que se va a realizar la búsqueda . Agregue el código de este método para que divida el espacio de búsqueda entre las N partes indicadas, y paralelice la búsqueda a través de N hilos. Hice que dicha función esperara hasta que los N hilos terminen de resolver su respectivo sub-problema para luego agregar las ocurrencias encontradas por cada hilo a la lista que es retornada por el método, y entonces se calcula si el número de ocurrencias es mayor o igual a _BLACK_LIST_ALARM_COUNT_. Si se da este caso, al final se reporta el host como confiable o no confiable, y muestra el listado con los números de las listas negras respectivas. 
+
+```{java}
+public class HostBlackListsValidator {
+
+    private static final int BLACK_LIST_ALARM_COUNT = 5;
+
+    public List<Integer> checkHost(String ipaddress, int N) {
+
+        LinkedList<Integer> blackListOcurrences = new LinkedList<>();
+        List<SearchBlackListThread> threads = new LinkedList<>();
+
+        HostBlacklistsDataSourceFacade skds =HostBlacklistsDataSourceFacade.getInstance();
+
+        int totalServers = skds.getRegisteredServersCount();
+        int divisions = totalServers / N;
+
+        for (int i = 0; i < N; i++) {
+            int start = i * divisions;
+            int end = 0;
+            if (i == N - 1) {
+                end = totalServers;
+            }else {
+                end = (i + 1) * divisions;
+            }
+            SearchBlackListThread t = new SearchBlackListThread(start, end, ipaddress, blackListOcurrences);
+            threads.add(t);
+            t.start();
+        }
+
+        for (SearchBlackListThread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                Logger.getLogger(HostBlackListsValidator.class.getName())
+                        .log(Level.SEVERE, null, e);
+            }
+        }
+
+        if (blackListOcurrences.size() >= BLACK_LIST_ALARM_COUNT) {
+            skds.reportAsNotTrustworthy(ipaddress);
+        } else {
+            skds.reportAsTrustworthy(ipaddress);
+        }
+
+        LOG.log(Level.INFO,"Checked Black Lists:{0} of {1}",new Object[]{totalServers, totalServers});
+        return blackListOcurrences;
+    }
+
+    private static final Logger LOG =
+            Logger.getLogger(HostBlackListsValidator.class.getName());
+}
+
+```
+
+Para lograr este comportamiento use el método [join](https://docs.oracle.com/javase/tutorial/essential/concurrency/join.html) del API de concurrencia de Java. 
 
 
-**Parte II.I Para discutir la próxima clase (NO para implementar aún)**
+```{java}
 
-La estrategia de paralelismo antes implementada es ineficiente en ciertos casos, pues la búsqueda se sigue realizando aún cuando los N hilos (en su conjunto) ya hayan encontrado el número mínimo de ocurrencias requeridas para reportar al servidor como malicioso. Cómo se podría modificar la implementación para minimizar el número de consultas en estos casos?, qué elemento nuevo traería esto al problema?
+	for (SearchBlackListThread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                Logger.getLogger(HostBlackListsValidator.class.getName())
+                        .log(Level.SEVERE, null, e);
+            }
+        }
 
-**Parte III - Evaluación de Desempeño**
+```
 
-A partir de lo anterior, implemente la siguiente secuencia de experimentos para realizar las validación de direcciones IP dispersas (por ejemplo 202.24.34.55), tomando los tiempos de ejecución de los mismos (asegúrese de hacerlos en la misma máquina):
+	
+* Dentro del método checkHost Se maintiene el LOG que informa, antes de retornar el resultado, el número de listas negras revisadas VS. el número de listas negras total. Se debe garantizar que dicha información sea verídica bajo el nuevo esquema de procesamiento en paralelo planteado.
+  
+
+```{java}
+
+private static final Logger LOG =
+            Logger.getLogger(HostBlackListsValidator.class.getName());
+
+```
+
+* Se sabe que el HOST 202.24.34.55 está reportado en listas negras de una forma más dispersa, y que el host 212.24.24.55 NO está en ninguna lista negra por lo cual probamos el correcto funcionamiento del programa en base a esto :
+
+**Validando 202.24.34.55**
+
+![202.24.34.55](img/ip_202.24.34.55.png)
+
+**Validando 212.24.34.55**
+
+![202.24.34.55](img/ip_212.24.34.55.png)
+
+
+**Parte II.I**
+
+La estrategia de paralelismo antes implementada es ineficiente en ciertos casos, pues la búsqueda se sigue realizando aún cuando los N hilos (en su conjunto) ya hayan encontrado el número mínimo de ocurrencias requeridas para reportar al servidor como malicioso. 
+Se podría modificar la implementación para minimizar el número de consultas en estos casos si en el momento en que se tienen las 5 concidencias todos los hilos se detienen para dar paso al hilo principalesto lo logramos utilizando la [Sincronización](https://docs.oracle.com/javase/tutorial/essential/concurrency/sync.html) del API de concurrencia de Java. 
+
+- En una variable que todos los hilos puedan ver indicamos si se debe de detener la ejecicion .
+- Implementamos un metodo 'Stop()' que permita consultar si debe detener ademas este debe estar sincronizado para que solo un hilo consulte a la vez y siempre obtenga el valor actualizado. 
+- Implementamos un metodo 'setStop()' que permita cambiar el valor dentro de la variable stop , este tambien debe de estar sincronizado para que todos los hilos puedan verlo y no sobreeescribirlo.
+
+```{java}
+public boolean stop = false;
+
+public synchronized boolean Stop() {
+    return stop;
+}
+
+public synchronized void setStop() {
+    stop = true;
+}
+```
+
+- Agregamos el validador dentro del hilo :
+
+```{java}
+
+private HostBlackListsValidator validator = new HostBlackListsValidator();
+public void run() {
+        HostBlacklistsDataSourceFacade skds =HostBlacklistsDataSourceFacade.getInstance();
+        for (int i = start; i < end && !validator.Stop(); i++) {
+            if (skds.isInBlackListServer(i, ip)) {
+                results.add(i); 
+                if (results.size() >= 5) {
+                    validator.setStop();
+              }
+        }
+    }
+
+```
+
+**Parte III - Evaluación de Desempeño** 
+
+A partir de lo anterior, implemente la siguiente secuencia de experimentos para realizar las validación de direcciones IP dispersas (por ejemplo 202.24.34.55), tomando los tiempos de ejecución de los mismos:
 
 1. Un solo hilo.
 2. Tantos hilos como núcleos de procesamiento (haga que el programa determine esto haciendo uso del [API Runtime](https://docs.oracle.com/javase/7/docs/api/java/lang/Runtime.html)).
 3. Tantos hilos como el doble de núcleos de procesamiento.
 4. 50 hilos.
 5. 100 hilos.
+   
+
 
 Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las pruebas, revise y anote el consumo de CPU y de memoria en cada caso. ![](img/jvisualvm.png)
 
@@ -168,5 +314,7 @@ Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tie
 	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
 
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
+
+
 
 3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.

@@ -14,10 +14,39 @@ import java.util.List;
 public class Main {
     
     public static void main(String a[]){
-        HostBlackListsValidator hblv=new HostBlackListsValidator();
-        List<Integer> blackListOcurrences=hblv.checkHost("200.24.34.55",4);
+        HostBlackListsValidator validator = new HostBlackListsValidator();
+        /**List<Integer> blackListOcurrences=vhblv.checkHost("202.24.34.55",4);
         System.out.println("The host was found in the following blacklists:"+blackListOcurrences);
-        
+        */
+       
+        String ip = "202.24.34.55";
+
+        int cores = Runtime.getRuntime().availableProcessors();
+
+        int[] tests = {
+            1,
+            cores,
+            cores * 2,
+            50,
+            100
+        };
+
+        for (int nThreads : tests) {
+
+            long start = System.currentTimeMillis();
+
+            validator.checkHost(ip, nThreads);
+
+            long end = System.currentTimeMillis();
+
+            System.out.println(
+                "Hilos: " + nThreads +
+                " | Tiempo: " + (end - start) + " ms"
+            );
+        }
     }
-    
+        
+
 }
+    
+

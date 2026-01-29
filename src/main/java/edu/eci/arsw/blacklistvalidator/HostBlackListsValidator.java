@@ -20,6 +20,16 @@ import edu.eci.arsw.threads.SearchBlackListThread;
 public class HostBlackListsValidator {
 
     private static final int BLACK_LIST_ALARM_COUNT = 5;
+    
+    public boolean stop=false;
+
+    public synchronized boolean Stop() {
+    return stop;
+    }
+
+    public synchronized void setStop() {
+        stop = true;
+    }
 
     public List<Integer> checkHost(String ipaddress, int N) {
 
