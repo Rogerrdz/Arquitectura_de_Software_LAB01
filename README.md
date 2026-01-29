@@ -19,8 +19,94 @@
 2. Complete el método __main__ de la clase CountMainThreads para que:
 	1. Cree 3 hilos de tipo CountThread, asignándole al primero el intervalo [0..99], al segundo [99..199], y al tercero [200..299].
 	2. Inicie los tres hilos con 'start()'.
+
+El metodo en la clase __main__ quedaria tal que así :
+
+```{java}
+
+	package edu.eci.arsw.threads;
+
+	/**
+	*
+	* @author hcadavid
+	*/
+	public class CountThreadsMain {
+		
+		public static void main(String a[]){
+			CountThread ct1 = new CountThread(0,99);
+			CountThread ct2 = new CountThread(99,199);     
+			CountThread ct3 = new CountThread(200,299);
+
+			ct1.start();   
+			ct2.start();
+			ct3.start();             
+		}   
+	}
+```
+
+La clase CountThread quedaria tal que asi : 
+
+```{java}
+
+	public class CountThread extends Thread {
+		
+		private int A;
+		private int B;
+		
+		public CountThread(int  A , int B){
+			this.A= A;
+			this.B= B;  
+		}
+
+		@Override
+		public void run(){ 
+			for (int i=A + 1 ;i < B;i++){
+				System.out.println("Hilo en ejecución :"+ getName() +" numero "+ i);
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+			}
+
+		}
+
+```
+
+
 	3. Ejecute y revise la salida por pantalla. 
+
+
+Al ejecutar la clase principal utilizando respectivamente el metodo 'start()' y la siguiente seria la salida (para mayor entendimiento en la clase CountThread en el metodo 'run()'hacemos que nos indique el nombre del hilo el cual esta realizando la tarea ): 
+
+![](img/Ejecucion_start().png)
+
 	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
+
+Al cambiar el método 'start()' por el método 'run()', lo que hacemos es ejecutar el método de la clase como un método normal. Este se ejecuta en el mismo hilo, por lo cual no permite la realización de tareas en paralelo. En cambio, al llamar el método 'start()', se crea un nuevo hilo que justo luego invoca el método 'run()' de manera interna, permitiendo que el programa se ejecute de forma concurrente.
+
+
+Ejecucion con el metodo 'run()':
+
+
+
+```{java}
+	public class CountThreadsMain {
+    
+    public static void main(String a[]){
+        CountThread ct1=new CountThread(0,99);
+        CountThread ct2=new CountThread(99,199);     
+        CountThread ct3=new CountThread(200,299);
+        ct1.run();   
+        ct2.run();
+        ct3.run();             
+    }
+```
+
+Salida:
+
+![](img/Ejecucion_run().png)
+
 
 **Parte II - Ejercicio Black List Search**
 
@@ -84,6 +170,3 @@ Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tie
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
 3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
-
-
-
