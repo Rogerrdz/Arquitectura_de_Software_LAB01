@@ -13,7 +13,7 @@
   Este ejercicio contiene una introducción a la programación con hilos en Java, además de la aplicación a un caso concreto.
   
 
-**Parte I - Introducción a Hilos en Java**
+### **Parte I - Introducción a Hilos en Java**
 
 1. De acuerdo con lo revisado en las lecturas, complete las clases CountThread, para que las mismas definan el ciclo de vida de un hilo que imprima por pantalla los números entre A y B.
 2. Complete el método __main__ de la clase CountMainThreads para que:
@@ -105,7 +105,7 @@ Salida:
 ![Metodo run](img/CountThreads_run().mp4)
 
 
-**Parte II - Ejercicio Black List Search**
+### **Parte II - Ejercicio Black List Search**
 
 
 Para un software de vigilancia automática de seguridad informática se está desarrollando un componente encargado de validar las direcciones IP en varios miles de listas negras (de host maliciosos) conocidas, y reportar aquellas que existan en al menos cinco de dichas listas. 
@@ -252,7 +252,7 @@ private static final Logger LOG =
 ![202.24.34.55](img/ip_212.24.34.55.png)
 
 
-**Parte II.I**
+### **Parte II.I**
 
 La estrategia de paralelismo antes implementada es ineficiente en ciertos casos, pues la búsqueda se sigue realizando aún cuando los N hilos (en su conjunto) ya hayan encontrado el número mínimo de ocurrencias requeridas para reportar al servidor como malicioso. 
 Se podría modificar la implementación para minimizar el número de consultas en estos casos si en el momento en que se tienen las 5 concidencias todos los hilos se detienen para dar paso al hilo principalesto lo logramos utilizando la [Sincronización](https://docs.oracle.com/javase/tutorial/essential/concurrency/sync.html) del API de concurrencia de Java. 
@@ -291,7 +291,7 @@ public void run() {
 
 ```
 
-**Parte III - Evaluación de Desempeño** 
+### **Parte III - Evaluación de Desempeño** 
 
 A partir de lo anterior, implemente la siguiente secuencia de experimentos para realizar las validación de direcciones IP dispersas (por ejemplo 202.24.34.55), tomando los tiempos de ejecución de los mismos:
 
@@ -301,20 +301,147 @@ A partir de lo anterior, implemente la siguiente secuencia de experimentos para 
 4. 50 hilos.
 5. 100 hilos.
    
+Al iniciar el programa se ejecuta el monitor jVisualVM, y a medida que corrian las pruebas, revisamos el consumo de CPU y de memoria en cada caso. 
 
+![](img/VM1.png.png)
 
-Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las pruebas, revise y anote el consumo de CPU y de memoria en cada caso. ![](img/jvisualvm.png)
+![](img/jvisualvm.png)
 
-Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
+Para esto preparamos la funcion 'main()' para realizar los test , con esto tendriamos como nuesta funcion principal lo siguiente:
 
-**Parte IV - Ejercicio Black List Search**
+```{java}
+	public class Main {
+    
+    public static void main(String a[]){
+        HostBlackListsValidator validator = new HostBlackListsValidator();
+        String ip = "202.24.34.55";
+        int cores = Runtime.getRuntime().availableProcessors();
+
+        int[] tests = {  
+            1,
+            cores,
+            cores * 2,
+            100
+        };
+
+        for (int nThreads : tests) {
+
+            long start = System.currentTimeMillis();
+
+            validator.checkHost(ip, nThreads);
+
+            long end = System.currentTimeMillis();
+
+            System.out.println(
+                "Hilos: " + nThreads +
+                " | Tiempo: " + (end - start) + " ms"
+            );
+        }
+    }
+}
+```
+
+Encapsulamos los escenarios en una lista llamada test para la entrega pero a continuacion y para mejor facilidad del ejercicio ejecutamos caso por caso .
+
+### Monitoreo:
+
+**1. Un solo hilo**
+
+- Monitoreo en visualVM:
+  
+![](img/Monitoring_1_VM.png)
+
+- Tiempo : 
+  
+ ![](img/Output_1_test.png) 
+
+ **2. Tantos hilos como nucleos de procesamiento**
+
+- Monitoreo en visualVM:
+  
+![](img/Monitoring_cores.png)
+
+- Tiempo : 
+  
+ ![](img/Output_cores_test.png) 
+
+ **3. Tantos hilos como el doble de nucleos**
+
+- Monitoreo en visualVM:
+  
+![](img/Monitoring_por_2_cores.png)
+
+- Tiempo : 
+  
+ ![](img/Output_por_2_cores_test.png) 
+
+ **4. 50 hilos**
+
+ - Monitoreo en visualVM:
+  
+![](img/Monitoring_50.png)
+
+- Tiempo : 
+  
+ ![](img/Output_50_test.png) 
+
+ **5. 100 hilos**
+
+ - Monitoreo en visualVM:
+  
+![](img/Monitoring_100.png)
+
+- Tiempo : 
+  
+ ![](img/Output_100_test.png) 
+
+Con lo anterior, y con los tiempos de ejecución dados, realizamos una grafica de tiempo de solución vs. número de hilos:
+
+![](img/hilos_vs_tiempo_graf.png) 
+
+Al analizar el comportamiento de la grafica tenemos que al aumentar el número de hilos desde 1 tambien tomando un número de núcleos del procesador hasta 100 hilos, el tiempo de ejecución disminuye, ya que el trabajo se distribuye entre varios núcleos y se aprovecha mejor el paralelismo.
+
+### **Parte IV - Ejercicio Black List Search**
 
 1. Según la [ley de Amdahls](https://www.pugetsystems.com/labs/articles/Estimating-CPU-Performance-using-Amdahls-Law-619/#WhatisAmdahlsLaw?):
 
-	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
+	![](img/Amdahls_law.png)
+
+	Donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?. 
+
+**Respuesta**
+
+Aunque teoricamente al aumentar el número de hilos el desempeño debería mejorar, en la práctica esto no ocurre para siempre ya que al usar 500 hilos , el desempeño fue peor que al usar 200 hilos esto se debe a que la  CPU tiene un numero finito de nucleos, por lo que muchos hilos no pueden ejecutarse en paralelo realmente; ademas que el programa  se sobrecarga por la administracion de hilos.Esto se ve mas claramente con 1000 hilos y 500 donde el desempeño de los 500 hilos fue mucho mejor al de 100 hilos debido a lo ya menconado.
+
+- **Desempeño 1000 hilos**
+
+ ![](img/Output_1000_test.png) 
+
+- **Desempeño 500 hilos**
+
+ ![](img/Output_500_test.png) 
+
+En comparación, con 500 hilos el sistema presenta menos sobrecarga y un uso más eficiente del CPU, logrando un mejor tiempo de ejecución que con 1000 hilos;Aunque Amdahl predice mejora al aumentar n, en sistemas reales la sobrecarga y las secciones no paralelizables limitan el beneficio, haciendo que muchos hilos sean contraproducentes.
 
 2. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
+Al usar tantos hilos como núcleos de procesamiento, el algoritmo alcanza un desempeño cercano al optimo ya que se supone que cada hilo puede ejecutarse en un nucleo fisico minimizando la espera entre hilos y aprovechando  eficientemente el paralelismo real del hardware.
+
+Cuando se usa el doble de hilos que núcleos, el desempeño no mejora significativamente e incluso segun la teoria puede empeorar ligeramente, esto por que los hilos comienzan a competir por los mismos nucleos se aumenta el consumo de memoria y la carga .
+
+En conclusion el paralelismo optimo se alcanza cuando el numero de hilos es similar al nmero de nucleos disponibles.
 
 
-3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
+3. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. 
+   
+-  Caso 1 - 1 hilo en cada una de 100 maquinas:
+  
+En este escenario, la Ley de Amdahl se aplicaria mejor, porque cada hilo se ejecuta en un nucleo fisico distinto por lo cual no hay competencia local por CPU reduciendose asi la sobrecarga .
+
+Sin embargo, aparece un nuevo factor que no es considerado directamente podrian ser los costos de comunicacion y coordinacion entre maquinas.Si el problema requiere poca comunicacion, el desempeño puede ser mejor que en una sola maquina.
+
+- Caso 2 - c hilos en 100/c máquinas (c = núcleos por maquina):
+
+Este escenario puede ser aun mas eficiente, porque cada maquina usa sus nucleos de una forma optima ademas de que se reduce el numero total de maquinas, disminuyendo la comunicacion manteniendo el paralelismo real sin saturar CPUs locales.
+
+El rendimiento mejora si la carga esta bien balanceada,la comunicación es mínima y el problema es muy paralelizable.

@@ -15,20 +15,21 @@ public class Main {
     
     public static void main(String a[]){
         HostBlackListsValidator validator = new HostBlackListsValidator();
+
         /**List<Integer> blackListOcurrences=vhblv.checkHost("202.24.34.55",4);
         System.out.println("The host was found in the following blacklists:"+blackListOcurrences);
         */
-       
+
         String ip = "202.24.34.55";
 
         int cores = Runtime.getRuntime().availableProcessors();
 
         int[] tests = {
-            1,
+            /**1,
             cores,
             cores * 2,
-            50,
-            100
+            100*/1000
+        
         };
 
         for (int nThreads : tests) {
@@ -45,8 +46,6 @@ public class Main {
             );
         }
     }
-        
-
 }
     
 
