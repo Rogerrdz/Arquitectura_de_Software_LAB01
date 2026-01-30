@@ -2,16 +2,17 @@
 ### Escuela Colombiana de Ingeniería
 ### Arquitecturas de Software - ARSW
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
-
+## Autor : Roger Alexander Rodriguez
 
 ### Dependencias:
 ####   Lecturas:
 *  [Threads in Java](http://beginnersbook.com/2013/03/java-threads/)  (Hasta 'Ending Threads')
 *  [Threads vs Processes]( http://cs-fundamentals.com/tech-interview/java/differences-between-thread-and-process-in-java.php)
-
+----
 ### Descripción
   Este ejercicio contiene una introducción a la programación con hilos en Java, además de la aplicación a un caso concreto.
   
+## Desarrollo
 
 ### **Parte I - Introducción a Hilos en Java**
 
@@ -77,7 +78,7 @@ public class CountThread extends Thread{
 
 Al ejecutar la clase principal utilizando respectivamente el metodo 'start()' y la siguiente seria la salida (para mayor entendimiento en la clase CountThread en el metodo 'run()'hacemos que nos indique el nombre del hilo el cual esta realizando la tarea ): 
 
-[ Viedo Ejecucion Metodo start](img/Ejecucion_start().png)
+![ Viedo Ejecucion Metodo start](img/Ejecucion_start().png)
 
 4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
@@ -102,7 +103,7 @@ Ejecucion con el metodo 'run()':
 
 Salida:
 
-[Video Ejecucion Metodo run](img/Ejecucion_run().png)
+![Video Ejecucion Metodo run](img/Ejecucion_run().png)
 
 
 ### **Parte II - Ejercicio Black List Search**
