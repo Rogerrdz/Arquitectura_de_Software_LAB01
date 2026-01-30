@@ -441,7 +441,7 @@ En este escenario, la Ley de Amdahl se aplicaria mejor, porque cada hilo se ejec
 
 Sin embargo, aparece un nuevo factor que no es considerado directamente podrian ser los costos de comunicacion y coordinacion entre maquinas.Si el problema requiere poca comunicacion, el desempeño puede ser mejor que en una sola maquina.
 
-- Caso 2 - c hilos en 100/c máquinas (c = núcleos por maquina):
+- Caso 2 - c hilos en 100/c máquinas (c = nucleos por maquina):
 
 Este escenario puede ser aun mas eficiente, porque cada maquina usa sus nucleos de una forma optima ademas de que se reduce el numero total de maquinas, disminuyendo la comunicacion manteniendo el paralelismo real sin saturar CPUs locales.
 
