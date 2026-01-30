@@ -77,7 +77,7 @@ public class CountThread extends Thread{
 
 Al ejecutar la clase principal utilizando respectivamente el metodo 'start()' y la siguiente seria la salida (para mayor entendimiento en la clase CountThread en el metodo 'run()'hacemos que nos indique el nombre del hilo el cual esta realizando la tarea ): 
 
-![Metodo start](img/CountThreads_start().mp4)
+[ Viedo Ejecucion Metodo start](img/Ejecucion_start().png)
 
 4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
@@ -102,7 +102,7 @@ Ejecucion con el metodo 'run()':
 
 Salida:
 
-![Metodo run](img/CountThreads_run().mp4)
+[Video Ejecucion Metodo run](img/Ejecucion_run().png)
 
 
 ### **Parte II - Ejercicio Black List Search**
